@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'screens/start_session_screen.dart';
 import 'screens/session_history_screen.dart';
+import 'screens/main_navigation.dart';
 
 void main() {
   runApp(const MyApp());
