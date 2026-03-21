@@ -79,7 +79,7 @@ class _StartSessionScreenState extends State<StartSessionScreen> {
                   return null;
                 },
                 onChanged: (value) {
-                  duration = int.tryParse(value) ?? 25;
+                  duration = int.tryParse(value) ?? 30;
                 },
               ),
               const SizedBox(height: 20),
