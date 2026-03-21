@@ -17,6 +17,12 @@ class _SessionHistoryScreenState extends State<SessionHistoryScreen> {
     loadSessions();
   }
 
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    loadSessions();
+  }
+
   Future<void> loadSessions() async {
     final data = await DatabaseHelper.instance.getSessions();
     setState(() {
