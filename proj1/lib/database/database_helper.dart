@@ -31,4 +31,22 @@ class DatabaseHelper {
       )
     ''');
   }
+
+  // CREATE
+  Future<int> insertSession(Map<String, dynamic> session) async {
+    final db = await instance.database;
+    return await db.insert('sessions', session);
+  }
+
+  // READ
+  Future<List<Map<String, dynamic>>> getSessions() async {
+    final db = await instance.database;
+    return await db.query('sessions', orderBy: 'createdAt DESC');
+  }
+
+  // DELETE
+  Future<int> deleteSession(int id) async {
+    final db = await instance.database;
+    return await db.delete('sessions', where: 'id = ?', whereArgs: [id]);
+  }
 }
