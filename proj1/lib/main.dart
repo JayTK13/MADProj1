@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'screens/start_session_screen.dart';
+import 'screens/session_history_screen.dart';
 
 void main() {
   runApp(const MyApp());
@@ -31,7 +32,7 @@ class MyApp extends StatelessWidget {
         // tested with just a hot reload.
         colorScheme: .fromSeed(seedColor: Colors.deepPurple),
       ),
-      home: StartSessionScreen(),
+      home: SessionHistoryScreen(),
     );
   }
 }
