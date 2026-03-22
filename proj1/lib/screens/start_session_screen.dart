@@ -31,34 +31,34 @@ class _StartSessionScreenState extends State<StartSessionScreen> {
         recommendation = data;
       });
     } catch (e) {
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(const SnackBar(content: Text('Error loading recommendation')));
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Error loading recommendation')),
+      );
     }
   }
 
   Future<void> saveSession() async {
     if (_formKey.currentState!.validate()) {
       try {
-      await DatabaseHelper.instance.insertSession({
-        'mood': mood,
-        'taskType': taskType,
-        'duration': duration,
-        'createdAt': DateTime.now().toString(),
-      });
+        await DatabaseHelper.instance.insertSession({
+          'mood': mood,
+          'taskType': taskType,
+          'duration': duration,
+          'createdAt': DateTime.now().toString(),
+        });
 
-      await loadRecommendation();
+        await loadRecommendation();
 
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Session Saved')),
-      );
-    } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Error saving session')),
-      );
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(const SnackBar(content: Text('Session Saved')));
+      } catch (e) {
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(const SnackBar(content: Text('Error saving session')));
+      }
     }
   }
-}
 
   @override
   Widget build(BuildContext context) {
