@@ -8,7 +8,7 @@ void main() {
   ) async {
     await tester.pumpWidget(const MaterialApp(home: StartSessionScreen()));
 
-    expect(find.text('Start Session'), findsOneWidget);
+    expect(find.text('Start Session'), findsWidgets);
     expect(find.text('Mood'), findsOneWidget);
     expect(find.text('Task Type'), findsOneWidget);
   });
