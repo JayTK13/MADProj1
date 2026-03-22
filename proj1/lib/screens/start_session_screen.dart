@@ -42,7 +42,7 @@ class _StartSessionScreenState extends State<StartSessionScreen> {
       await loadRecommendation();
 
       ScaffoldMessenger.of(
-        context,
+        context
       ).showSnackBar(const SnackBar(content: Text('Session Saved')));
     }
   }
@@ -65,7 +65,7 @@ class _StartSessionScreenState extends State<StartSessionScreen> {
                     child: Column(
                       children: [
                         const Text(
-                          "AI Suggestion 🎧",
+                          "AI Suggestion",
                           style: TextStyle(fontWeight: FontWeight.bold),
                         ),
                         Text(
