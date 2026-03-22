@@ -10,6 +10,7 @@ class SessionHistoryScreen extends StatefulWidget {
 
 class _SessionHistoryScreenState extends State<SessionHistoryScreen> {
   List<Map<String, dynamic>> sessions = [];
+  bool isLoading = true;
 
   @override
   void initState() {
@@ -27,6 +28,7 @@ class _SessionHistoryScreenState extends State<SessionHistoryScreen> {
     final data = await DatabaseHelper.instance.getSessions();
     setState(() {
       sessions = data;
+      isLoading = false;
     });
   }
 
@@ -39,18 +41,27 @@ class _SessionHistoryScreenState extends State<SessionHistoryScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(title: const Text('Session History')),
-      body: sessions.isEmpty
+      body: isLoading
+          ? const Center(child: CircularProgressIndicator())
+          : sessions.isEmpty
           ? const Center(child: Text('No sessions recorded'))
           : ListView.builder(
               itemCount: sessions.length,
               itemBuilder: (context, index) {
                 final session = sessions[index];
-                return ListTile(
-                  title: Text("${session['taskType']} - ${session['mood']}"),
-                  subtitle: Text("Duration: ${session['duration']} min"),
-                  trailing: IconButton(
-                    icon: const Icon(Icons.delete),
-                    onPressed: () => deleteSession(session['id']),
+
+                return Card(
+                  margin: const EdgeInsets.symmetric(
+                    horizontal: 10,
+                    vertical: 5,
+                  ),
+                  child: ListTile(
+                    title: Text("${session['taskType']} - ${session['mood']}"),
+                    subtitle: Text("Duration: ${session['duration']} min"),
+                    trailing: IconButton(
+                      icon: const Icon(Icons.delete),
+                      onPressed: () => deleteSession(session['id'] as int),
+                    ),
                   ),
                 );
               },
