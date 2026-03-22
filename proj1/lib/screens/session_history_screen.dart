@@ -18,23 +18,52 @@ class _SessionHistoryScreenState extends State<SessionHistoryScreen> {
     loadSessions();
   }
 
-  @override
-  void didChangeDependencies() {
-    super.didChangeDependencies();
-    loadSessions();
-  }
-
   Future<void> loadSessions() async {
-    final data = await DatabaseHelper.instance.getSessions();
-    setState(() {
-      sessions = data;
-      isLoading = false;
-    });
+    try {
+      final data = await DatabaseHelper.instance.getSessions();
+      setState(() {
+        sessions = data;
+        isLoading = false;
+      });
+    } catch (e) {
+      setState(() {
+        isLoading = false;
+      });
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text('Error loading sessions')));
+    }
   }
 
   Future<void> deleteSession(int id) async {
-    await DatabaseHelper.instance.deleteSession(id);
-    loadSessions();
+    final confirm = await showDialog<bool>(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: const Text("Delete Session"),
+          content: const Text("Are you sure you want to delete this session?"),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context, false),
+              child: const Text("Cancel"),
+            ),
+            TextButton(
+              onPressed: () => Navigator.pop(context, true),
+              child: const Text("Delete"),
+            ),
+          ],
+        );
+      },
+    );
+
+    if (confirm == true) {
+      await DatabaseHelper.instance.deleteSession(id);
+      loadSessions();
+
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text('Session deleted')));
+    }
   }
 
   @override
