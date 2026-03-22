@@ -17,7 +17,11 @@ class DatabaseHelper {
     final dbPath = await getDatabasesPath();
     final path = join(dbPath, filePath);
 
-    return await openDatabase(path, version: 1, onCreate: _createDB);
+    return await openDatabase(
+      path,
+      version: 1,
+      onCreate: _createDB,
+    );
   }
 
   Future _createDB(Database db, int version) async {
@@ -47,10 +51,14 @@ class DatabaseHelper {
   // DELETE
   Future<int> deleteSession(int id) async {
     final db = await database;
-    return await db.delete('sessions', where: 'id = ?', whereArgs: [id]);
+    return await db.delete(
+      'sessions',
+      where: 'id = ?',
+      whereArgs: [id],
+    );
   }
 
-  // AI intergration
+  // AI Intergration
   Future<Map<String, dynamic>?> getRecommendation() async {
     final db = await database;
 
@@ -66,19 +74,18 @@ class DatabaseHelper {
     Map<String, int> taskCount = {};
 
     for (var session in sessions) {
-      moodCount[session['mood']] = (moodCount[session['mood']] ?? 0) + 1;
+      String mood = session['mood'] as String;
+      String task = session['taskType'] as String;
 
-      taskCount[session['taskType']] =
-          (taskCount[session['taskType']] ?? 0) + 1;
+      moodCount[mood] = (moodCount[mood] ?? 0) + 1;
+      taskCount[task] = (taskCount[task] ?? 0) + 1;
     }
 
-    String bestMood = moodCount.entries
-        .reduce((a, b) => a.value > b.value ? a : b)
-        .key;
+    String bestMood =
+        moodCount.entries.reduce((a, b) => a.value > b.value ? a : b).key;
 
-    String bestTask = taskCount.entries
-        .reduce((a, b) => a.value > b.value ? a : b)
-        .key;
+    String bestTask =
+        taskCount.entries.reduce((a, b) => a.value > b.value ? a : b).key;
 
     return {
       'mood': bestMood,
