@@ -15,6 +15,21 @@ class _StartSessionScreenState extends State<StartSessionScreen> {
   String taskType = 'Studying';
   int duration = 30;
 
+  Map<String, dynamic>? recommendation;
+
+  @override
+  void initState() {
+    super.initState();
+    loadRecommendation();
+  }
+
+  Future<void> loadRecommendation() async {
+    final data = await DatabaseHelper.instance.getRecommendation();
+    setState(() {
+      recommendation = data;
+    });
+  }
+
   Future<void> saveSession() async {
     if (_formKey.currentState!.validate()) {
       await DatabaseHelper.instance.insertSession({
@@ -23,6 +38,8 @@ class _StartSessionScreenState extends State<StartSessionScreen> {
         'duration': duration,
         'createdAt': DateTime.now().toString(),
       });
+
+      await loadRecommendation();
 
       ScaffoldMessenger.of(
         context,
@@ -40,6 +57,31 @@ class _StartSessionScreenState extends State<StartSessionScreen> {
           key: _formKey,
           child: Column(
             children: [
+              if (recommendation != null)
+                Card(
+                  color: Colors.blue.shade50,
+                  child: Padding(
+                    padding: const EdgeInsets.all(12),
+                    child: Column(
+                      children: [
+                        const Text(
+                          "AI Suggestion 🎧",
+                          style: TextStyle(fontWeight: FontWeight.bold),
+                        ),
+                        Text(
+                          "Try: ${recommendation!['taskType']} with ${recommendation!['mood']} mood",
+                        ),
+                        Text(
+                          recommendation!['reason'],
+                          style: const TextStyle(fontSize: 12),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+
+              const SizedBox(height: 10),
+
               DropdownButtonFormField(
                 value: mood,
                 items: ['Calm', 'Focus', 'Energy']
@@ -52,7 +94,9 @@ class _StartSessionScreenState extends State<StartSessionScreen> {
                 },
                 decoration: const InputDecoration(labelText: 'Mood'),
               ),
+
               const SizedBox(height: 10),
+
               DropdownButtonFormField(
                 value: taskType,
                 items: ['Studying', 'Coding', 'Reading']
@@ -65,7 +109,9 @@ class _StartSessionScreenState extends State<StartSessionScreen> {
                 },
                 decoration: const InputDecoration(labelText: 'Task Type'),
               ),
+
               const SizedBox(height: 10),
+
               TextFormField(
                 initialValue: duration.toString(),
                 keyboardType: TextInputType.number,
@@ -82,7 +128,9 @@ class _StartSessionScreenState extends State<StartSessionScreen> {
                   duration = int.tryParse(value) ?? 30;
                 },
               ),
+
               const SizedBox(height: 20),
+
               ElevatedButton(
                 onPressed: saveSession,
                 child: const Text('Start Session'),
