@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../database/database_helper.dart';
+import 'settings_screen.dart';
 
 class StartSessionScreen extends StatefulWidget {
   const StartSessionScreen({super.key});
@@ -50,7 +51,20 @@ class _StartSessionScreenState extends State<StartSessionScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Start Session')),
+      appBar: AppBar(
+        title: const Text('Start Session'),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.settings),
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => const SettingsScreen()),
+              );
+            },
+          ),
+        ],
+      ),
       body: Padding(
         padding: const EdgeInsets.all(16),
         child: Form(
@@ -121,6 +135,9 @@ class _StartSessionScreenState extends State<StartSessionScreen> {
                 validator: (value) {
                   if (value == null || value.isEmpty) {
                     return 'Enter duration';
+                  }
+                  if (int.tryParse(value) == null) {
+                    return 'Enter a valid number';
                   }
                   return null;
                 },
