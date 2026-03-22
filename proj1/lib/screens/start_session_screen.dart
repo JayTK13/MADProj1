@@ -13,7 +13,7 @@ class _StartSessionScreenState extends State<StartSessionScreen> {
 
   String mood = 'Calm';
   String taskType = 'Studying';
-  int duration = 25;
+  int duration = 30;
 
   Future<void> saveSession() async {
     if (_formKey.currentState!.validate()) {

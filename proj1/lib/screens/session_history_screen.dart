@@ -32,7 +32,7 @@ class _SessionHistoryScreenState extends State<SessionHistoryScreen> {
 
   Future<void> deleteSession(int id) async {
     await DatabaseHelper.instance.deleteSession(id);
-    loadSessions(); // refresh list
+    loadSessions();
   }
 
   @override

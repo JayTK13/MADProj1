@@ -12,8 +12,7 @@ class MainNavigation extends StatefulWidget {
 class _MainNavigationState extends State<MainNavigation> {
   int _selectedIndex = 0;
 
-  final List<Widget> _screens = [StartSessionScreen(), SessionHistoryScreen()];
-
+  List<Widget> get _screens => [StartSessionScreen(), SessionHistoryScreen()];
   void _onItemTapped(int index) {
     setState(() {
       _selectedIndex = index;

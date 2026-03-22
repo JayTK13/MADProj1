@@ -34,19 +34,56 @@ class DatabaseHelper {
 
   // CREATE
   Future<int> insertSession(Map<String, dynamic> session) async {
-    final db = await instance.database;
+    final db = await database;
     return await db.insert('sessions', session);
   }
 
   // READ
   Future<List<Map<String, dynamic>>> getSessions() async {
-    final db = await instance.database;
+    final db = await database;
     return await db.query('sessions', orderBy: 'createdAt DESC');
   }
 
   // DELETE
   Future<int> deleteSession(int id) async {
-    final db = await instance.database;
+    final db = await database;
     return await db.delete('sessions', where: 'id = ?', whereArgs: [id]);
+  }
+
+  // AI intergration
+  Future<Map<String, dynamic>?> getRecommendation() async {
+    final db = await database;
+
+    final sessions = await db.query(
+      'sessions',
+      orderBy: 'createdAt DESC',
+      limit: 3,
+    );
+
+    if (sessions.isEmpty) return null;
+
+    Map<String, int> moodCount = {};
+    Map<String, int> taskCount = {};
+
+    for (var session in sessions) {
+      moodCount[session['mood']] = (moodCount[session['mood']] ?? 0) + 1;
+
+      taskCount[session['taskType']] =
+          (taskCount[session['taskType']] ?? 0) + 1;
+    }
+
+    String bestMood = moodCount.entries
+        .reduce((a, b) => a.value > b.value ? a : b)
+        .key;
+
+    String bestTask = taskCount.entries
+        .reduce((a, b) => a.value > b.value ? a : b)
+        .key;
+
+    return {
+      'mood': bestMood,
+      'taskType': bestTask,
+      'reason': 'Based on your last ${sessions.length} sessions',
+    };
   }
 }
