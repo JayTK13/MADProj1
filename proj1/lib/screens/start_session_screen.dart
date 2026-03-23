@@ -25,6 +25,7 @@ class _StartSessionScreenState extends State<StartSessionScreen> {
   Timer? _timer;
   int remainingSeconds = 0;
   bool isRunning = false;
+  bool isPaused = false;
 
   @override
   void initState() {
@@ -73,6 +74,7 @@ class _StartSessionScreenState extends State<StartSessionScreen> {
 
         setState(() {
           isRunning = false;
+          isPaused = false;
         });
 
         ScaffoldMessenger.of(context).showSnackBar(
@@ -87,6 +89,57 @@ class _StartSessionScreenState extends State<StartSessionScreen> {
 
     setState(() {
       isRunning = true;
+      isPaused = false;
+    });
+  }
+
+  void pauseSession() async {
+    _timer?.cancel();
+    await _audioPlayer.pause();
+
+    setState(() {
+      isPaused = true;
+      isRunning = false;
+    });
+  }
+
+  void resumeSession() {
+    _timer = Timer.periodic(const Duration(seconds: 1), (timer) async {
+      if (remainingSeconds <= 0) {
+        timer.cancel();
+        await _audioPlayer.stop();
+
+        setState(() {
+          isRunning = false;
+          isPaused = false;
+        });
+
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Session Complete')),
+        );
+      } else {
+        setState(() {
+          remainingSeconds--;
+        });
+      }
+    });
+
+    _audioPlayer.resume();
+
+    setState(() {
+      isRunning = true;
+      isPaused = false;
+    });
+  }
+
+  void stopSession() async {
+    _timer?.cancel();
+    await _audioPlayer.stop();
+
+    setState(() {
+      isRunning = false;
+      isPaused = false;
+      remainingSeconds = 0;
     });
   }
 
@@ -112,6 +165,7 @@ class _StartSessionScreenState extends State<StartSessionScreen> {
   @override
   void dispose() {
     _timer?.cancel();
+    _audioPlayer.stop();
     _audioPlayer.dispose();
     super.dispose();
   }
@@ -147,7 +201,7 @@ class _StartSessionScreenState extends State<StartSessionScreen> {
             children: [
               if (recommendation != null)
                 Card(
-                  color: Colors.blue.shade50,
+                  color: Colors.blue,
                   child: Padding(
                     padding: const EdgeInsets.all(12),
                     child: Column(
@@ -170,7 +224,7 @@ class _StartSessionScreenState extends State<StartSessionScreen> {
 
               const SizedBox(height: 10),
 
-              if (isRunning)
+              if (isRunning || isPaused)
                 Text(
                   formatTime(remainingSeconds),
                   style: const TextStyle(
@@ -237,6 +291,26 @@ class _StartSessionScreenState extends State<StartSessionScreen> {
                 onPressed: saveSession,
                 child: const Text('Start Session'),
               ),
+
+              const SizedBox(height: 10),
+
+              if (isRunning)
+                ElevatedButton(
+                  onPressed: pauseSession,
+                  child: const Text('Pause'),
+                ),
+
+              if (isPaused)
+                ElevatedButton(
+                  onPressed: resumeSession,
+                  child: const Text('Resume'),
+                ),
+
+              if (isRunning || isPaused)
+                ElevatedButton(
+                  onPressed: stopSession,
+                  child: const Text('Stop'),
+                ),
             ],
           ),
         ),
