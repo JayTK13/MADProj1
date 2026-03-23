@@ -67,7 +67,7 @@ createdAt  TEXT         Timestap of created session
 
 
 # Known Issues
-- Audio has potential to not run in background if minimized
+- Audio has potential to not run in background if minimized or sceen changed
 - If app is restarted then timer will reset itself
 
 
