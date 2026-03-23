@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:audioplayers/audioplayers.dart';
 import '../database/database_helper.dart';
 import 'settings_screen.dart';
 
@@ -18,6 +19,8 @@ class _StartSessionScreenState extends State<StartSessionScreen> {
 
   Map<String, dynamic>? recommendation;
 
+  final AudioPlayer _audioPlayer = AudioPlayer();
+
   @override
   void initState() {
     super.initState();
@@ -25,39 +28,57 @@ class _StartSessionScreenState extends State<StartSessionScreen> {
   }
 
   Future<void> loadRecommendation() async {
-    try {
-      final data = await DatabaseHelper.instance.getRecommendation();
-      setState(() {
-        recommendation = data;
-      });
-    } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Error loading recommendation')),
-      );
+    final data = await DatabaseHelper.instance.getRecommendation();
+    setState(() {
+      recommendation = data;
+    });
+  }
+
+  Future<void> playMoodSound() async {
+    String fileName;
+
+    switch (mood) {
+      case 'Calm':
+        fileName = 'calm.mp3';
+        break;
+      case 'Focus':
+        fileName = 'focus.mp3';
+        break;
+      case 'Energy':
+        fileName = 'energy.mp3';
+        break;
+      default:
+        fileName = 'calm.mp3';
     }
+
+    await _audioPlayer.setReleaseMode(ReleaseMode.loop);
+    await _audioPlayer.stop();
+    await _audioPlayer.play(AssetSource('sounds/$fileName'));
   }
 
   Future<void> saveSession() async {
     if (_formKey.currentState!.validate()) {
-      try {
-        await DatabaseHelper.instance.insertSession({
-          'mood': mood,
-          'taskType': taskType,
-          'duration': duration,
-          'createdAt': DateTime.now().toString(),
-        });
+      await DatabaseHelper.instance.insertSession({
+        'mood': mood,
+        'taskType': taskType,
+        'duration': duration,
+        'createdAt': DateTime.now().toString(),
+      });
 
-        await loadRecommendation();
+      await playMoodSound();
 
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(const SnackBar(content: Text('Session Saved')));
-      } catch (e) {
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(const SnackBar(content: Text('Error saving session')));
-      }
+      await loadRecommendation();
+
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text('Session Started')));
     }
+  }
+
+  @override
+  void dispose() {
+    _audioPlayer.dispose();
+    super.dispose();
   }
 
   @override
@@ -105,9 +126,7 @@ class _StartSessionScreenState extends State<StartSessionScreen> {
                     ),
                   ),
                 ),
-
               const SizedBox(height: 10),
-
               DropdownButtonFormField(
                 value: mood,
                 items: ['Calm', 'Focus', 'Energy']
@@ -120,9 +139,7 @@ class _StartSessionScreenState extends State<StartSessionScreen> {
                 },
                 decoration: const InputDecoration(labelText: 'Mood'),
               ),
-
               const SizedBox(height: 10),
-
               DropdownButtonFormField(
                 value: taskType,
                 items: ['Studying', 'Coding', 'Reading']
@@ -135,9 +152,7 @@ class _StartSessionScreenState extends State<StartSessionScreen> {
                 },
                 decoration: const InputDecoration(labelText: 'Task Type'),
               ),
-
               const SizedBox(height: 10),
-
               TextFormField(
                 initialValue: duration.toString(),
                 keyboardType: TextInputType.number,
@@ -157,9 +172,7 @@ class _StartSessionScreenState extends State<StartSessionScreen> {
                   duration = int.tryParse(value) ?? 30;
                 },
               ),
-
               const SizedBox(height: 20),
-
               ElevatedButton(
                 onPressed: saveSession,
                 child: const Text('Start Session'),
