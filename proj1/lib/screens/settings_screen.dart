@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import '../main.dart';
 
 class SettingsScreen extends StatefulWidget {
   const SettingsScreen({super.key});
@@ -31,6 +32,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
     setState(() {
       darkMode = value;
     });
+
+    MyApp.of(context)?.toggleTheme(value);
   }
 
   @override
