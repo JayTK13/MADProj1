@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:audioplayers/audioplayers.dart';
 import '../database/database_helper.dart';
@@ -20,6 +21,10 @@ class _StartSessionScreenState extends State<StartSessionScreen> {
   Map<String, dynamic>? recommendation;
 
   final AudioPlayer _audioPlayer = AudioPlayer();
+
+  Timer? _timer;
+  int remainingSeconds = 0;
+  bool isRunning = false;
 
   @override
   void initState() {
@@ -56,6 +61,35 @@ class _StartSessionScreenState extends State<StartSessionScreen> {
     await _audioPlayer.play(AssetSource('sounds/$fileName'));
   }
 
+  void startTimer() {
+    remainingSeconds = duration * 60;
+
+    _timer?.cancel();
+
+    _timer = Timer.periodic(const Duration(seconds: 1), (timer) async {
+      if (remainingSeconds <= 0) {
+        timer.cancel();
+        await _audioPlayer.stop();
+
+        setState(() {
+          isRunning = false;
+        });
+
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Session Complete')),
+        );
+      } else {
+        setState(() {
+          remainingSeconds--;
+        });
+      }
+    });
+
+    setState(() {
+      isRunning = true;
+    });
+  }
+
   Future<void> saveSession() async {
     if (_formKey.currentState!.validate()) {
       await DatabaseHelper.instance.insertSession({
@@ -66,19 +100,26 @@ class _StartSessionScreenState extends State<StartSessionScreen> {
       });
 
       await playMoodSound();
-
+      startTimer();
       await loadRecommendation();
 
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(const SnackBar(content: Text('Session Started')));
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Session Started')),
+      );
     }
   }
 
   @override
   void dispose() {
+    _timer?.cancel();
     _audioPlayer.dispose();
     super.dispose();
+  }
+
+  String formatTime(int seconds) {
+    final minutes = seconds ~/ 60;
+    final secs = seconds % 60;
+    return "$minutes:${secs.toString().padLeft(2, '0')}";
   }
 
   @override
@@ -126,7 +167,20 @@ class _StartSessionScreenState extends State<StartSessionScreen> {
                     ),
                   ),
                 ),
+
               const SizedBox(height: 10),
+
+              if (isRunning)
+                Text(
+                  formatTime(remainingSeconds),
+                  style: const TextStyle(
+                    fontSize: 32,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+
+              const SizedBox(height: 10),
+
               DropdownButtonFormField(
                 value: mood,
                 items: ['Calm', 'Focus', 'Energy']
@@ -139,7 +193,9 @@ class _StartSessionScreenState extends State<StartSessionScreen> {
                 },
                 decoration: const InputDecoration(labelText: 'Mood'),
               ),
+
               const SizedBox(height: 10),
+
               DropdownButtonFormField(
                 value: taskType,
                 items: ['Studying', 'Coding', 'Reading']
@@ -152,7 +208,9 @@ class _StartSessionScreenState extends State<StartSessionScreen> {
                 },
                 decoration: const InputDecoration(labelText: 'Task Type'),
               ),
+
               const SizedBox(height: 10),
+
               TextFormField(
                 initialValue: duration.toString(),
                 keyboardType: TextInputType.number,
@@ -172,7 +230,9 @@ class _StartSessionScreenState extends State<StartSessionScreen> {
                   duration = int.tryParse(value) ?? 30;
                 },
               ),
+
               const SizedBox(height: 20),
+
               ElevatedButton(
                 onPressed: saveSession,
                 child: const Text('Start Session'),
