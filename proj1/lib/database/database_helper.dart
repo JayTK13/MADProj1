@@ -7,12 +7,14 @@ class DatabaseHelper {
 
   DatabaseHelper._init();
 
+// Getter for the database, initializes if not already done
   Future<Database> get database async {
     if (_database != null) return _database!;
     _database = await _initDB('focus_app.db');
     return _database!;
   }
 
+// Initialize the database and create the sessions table
   Future<Database> _initDB(String filePath) async {
     final dbPath = await getDatabasesPath();
     final path = join(dbPath, filePath);
@@ -24,6 +26,7 @@ class DatabaseHelper {
     );
   }
 
+// Create the sessions table with appropriate columns
   Future _createDB(Database db, int version) async {
     await db.execute('''
       CREATE TABLE sessions (
