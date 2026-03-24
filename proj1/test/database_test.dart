@@ -1,5 +1,6 @@
 import 'package:flutter_test/flutter_test.dart';
 
+// Basic unit tests for session logic
 void main() {
   group('Session Logic Tests', () {
     test('Duration should be positive', () {
@@ -7,7 +8,7 @@ void main() {
 
       expect(duration > 0, true);
     });
-
+    // Test to ensure that mood is not empty
     test('Mood should not be empty', () {
       String mood = 'Calm';
 

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:proj1/screens/start_session_screen.dart';
 
+// Basic integration test to simulate a full session flow
 void main() {
   testWidgets('Full session flow works', (WidgetTester tester) async {
     await tester.pumpWidget(const MaterialApp(home: StartSessionScreen()));
