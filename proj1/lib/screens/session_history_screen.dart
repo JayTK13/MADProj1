@@ -1,13 +1,16 @@
 import 'package:flutter/material.dart';
 import '../database/database_helper.dart';
 
+// Screen to display the history of sessions with options to delete individual entries
 class SessionHistoryScreen extends StatefulWidget {
   const SessionHistoryScreen({super.key});
 
+  // Create state for the session history screen
   @override
   State<SessionHistoryScreen> createState() => _SessionHistoryScreenState();
 }
 
+// State class for the session history screen that manages loading and displaying session data
 class _SessionHistoryScreenState extends State<SessionHistoryScreen> {
   List<Map<String, dynamic>> sessions = [];
   bool isLoading = true;
@@ -18,6 +21,7 @@ class _SessionHistoryScreenState extends State<SessionHistoryScreen> {
     loadSessions();
   }
 
+  // Function to load sessions from the database and update the state
   Future<void> loadSessions() async {
     try {
       final data = await DatabaseHelper.instance.getSessions();
@@ -35,10 +39,12 @@ class _SessionHistoryScreenState extends State<SessionHistoryScreen> {
     }
   }
 
+  // Function to delete a session with confirmation dialog
   Future<void> deleteSession(int id) async {
     final confirm = await showDialog<bool>(
       context: context,
       builder: (context) {
+        // Show a confirmation dialog before deleting a session
         return AlertDialog(
           title: const Text("Delete Session"),
           content: const Text("Are you sure you want to delete this session?"),
@@ -66,6 +72,7 @@ class _SessionHistoryScreenState extends State<SessionHistoryScreen> {
     }
   }
 
+  // Build method to display the session history with loading indicator and delete options
   @override
   Widget build(BuildContext context) {
     return Scaffold(
